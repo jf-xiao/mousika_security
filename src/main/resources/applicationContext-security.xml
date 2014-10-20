@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <http pattern="/css/**" security="none" />
+    <http pattern="/js/**" security="none" />
+    <http pattern="/images/**" security="none" />
+    <http pattern="/login.jsp*" security="none" />
+
+    <http use-expressions="true">
+        <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+
+        <form-login login-page='/login.jsp' default-target-url="/home.jsp" always-use-default-target="true" />
+        <logout invalidate-session="true" delete-cookies="JSESSIONID"/>
+    </http>
+
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="jimi" password="jimi" authorities="ROLE_USER, ROLE_ADMIN" />
+                <user name="bob" password="bob" authorities="ROLE_USER" />
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id="myAuthenticationSuccessHandler"
+        class="com.mousika.security.beans.MyAuthenticationSuccessHandler"></beans:bean>
+    <beans:bean id="myAuthenticationFailureHandler"
+        class="com.mousika.security.beans.MyAuthenticationFailureHandler"></beans:bean>
+    <beans:bean id="myLogoutSuccessHandler"
+        class="com.mousika.security.beans.MyLogoutSuccessHandler"></beans:bean>
+
+</beans:beans>
