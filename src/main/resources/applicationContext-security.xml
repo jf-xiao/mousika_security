@@ -6,32 +6,44 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security.xsd">
 
+    <!-- resource filter pattern -->
     <http pattern="/css/**" security="none" />
     <http pattern="/js/**" security="none" />
     <http pattern="/images/**" security="none" />
     <http pattern="/login.jsp*" security="none" />
 
-    <http use-expressions="true">
+    <http auto-config="true" use-expressions="true">
         <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
 
+        <!-- login check support -->
         <form-login login-page='/login.jsp' default-target-url="/home.jsp" always-use-default-target="true" />
-        <logout invalidate-session="true" delete-cookies="JSESSIONID"/>
+        <!-- remember me support -->
+        <remember-me services-ref="ipTokenBasedRememberMeServices" key="mousika_security"/>
+        <!-- logout support -->
+        <logout invalidate-session="true" delete-cookies="JSESSIONID" />
     </http>
 
     <authentication-manager>
         <authentication-provider>
-            <user-service>
+            <user-service id="userService">
                 <user name="jimi" password="jimi" authorities="ROLE_USER, ROLE_ADMIN" />
                 <user name="bob" password="bob" authorities="ROLE_USER" />
             </user-service>
         </authentication-provider>
     </authentication-manager>
 
-    <beans:bean id="myAuthenticationSuccessHandler"
-        class="com.mousika.security.beans.MyAuthenticationSuccessHandler"></beans:bean>
-    <beans:bean id="myAuthenticationFailureHandler"
-        class="com.mousika.security.beans.MyAuthenticationFailureHandler"></beans:bean>
-    <beans:bean id="myLogoutSuccessHandler"
-        class="com.mousika.security.beans.MyLogoutSuccessHandler"></beans:bean>
+    <!-- authentication success handler -->
+    <beans:bean id="myAuthenticationSuccessHandler" class="com.mousika.security.beans.MyAuthenticationSuccessHandler"></beans:bean>
+     <!-- authentication failure handler -->
+    <beans:bean id="myAuthenticationFailureHandler" class="com.mousika.security.beans.MyAuthenticationFailureHandler"></beans:bean>
+     <!-- logout success handler -->
+    <beans:bean id="myLogoutSuccessHandler" class="com.mousika.security.beans.MyLogoutSuccessHandler"></beans:bean>
+    <!--ip remember me services-->
+    <beans:bean id="ipTokenBasedRememberMeServices" class="com.mousika.security.services.IPTokenBasedRememberMeServices">
+        <beans:constructor-arg index="0" value="mousika_security"></beans:constructor-arg>
+        <beans:constructor-arg index="1" ref="userService"></beans:constructor-arg>
+        <beans:property name="parameter" value="_remember_me"></beans:property>
+        <beans:property name="tokenValiditySeconds" value="1209600"></beans:property>
+    </beans:bean>
 
 </beans:beans>
